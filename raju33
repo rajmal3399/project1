@@ -1,0 +1,46 @@
+clude<stdio.h>
+#include<unistd.h>
+#include<pthread.h>
+void *writer();
+void *reader();
+pthread_mutex_t rw_mutex;
+pthread_mutex_t mutex;
+int read_count=0;
+pthread_mutex_t rw_mutex;
+pthread_mutex_t mutex;
+pthread_t t1,t2;
+int main()
+{
+        pthread_mutex_init(&rw_mutex,NULL);
+        pthread_mutex_init(&mutex,NULL);
+        pthread_create(&t1,NULL,writer,NULL);
+        pthread_create(&t2,NULL,reader,NULL);
+        pthread_join(t1,NULL);
+        pthread_join(t2,NULL);
+        return 0;
+}
+
+void *writer()
+{
+    pthread_mutex_lock(&rw_mutex);
+    printf("Writer can write\n");
+    pthread_mutex_unlock(&rw_mutex);
+
+}
+void *reader()
+{
+    pthread_mutex_lock(&mutex);
+    read_count++;
+    if(read_count==1)
+    pthread_mutex_lock(&rw_mutex);
+    pthread_mutex_unlock(&rw_mutex);
+
+    printf("reader  performed the task\n");
+    pthread_mutex_lock(&mutex);
+    read_count--;
+    if(read_count==0)
+    {
+        pthread_mutex_unlock(&rw_mutex);
+    }
+    pthread_mutex_unlock(&mutex);
+}
